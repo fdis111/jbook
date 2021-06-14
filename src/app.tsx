@@ -1,6 +1,7 @@
 import * as esbuild from 'esbuild-wasm';
 import { useState, useEffect } from 'react';
 import { unpkgPathPlugin } from './plugins/unpkg-path-plugin';
+import { fetchPlugin } from './plugins/fetch-plugin';
 import TextArea from './textArea';
 
 const App: React.FC = () => {
@@ -14,14 +15,18 @@ const App: React.FC = () => {
 			entryPoints: ['index.js'],
 			bundle: true,
 			write: false,
-			plugins: [unpkgPathPlugin()],
+			plugins: [unpkgPathPlugin(), fetchPlugin(textAreaValue)],
+			define: {
+				'process.env.NODE_ENV': '"production"',
+				global: 'window',
+			},
 		});
 		setCode(result.outputFiles[0].text);
 	};
 	const startService = async () => {
 		await esbuild.initialize({
 			worker: true,
-			wasmURL: '/esbuild.wasm',
+			wasmURL: 'https://unpkg.com/esbuild-wasm@0.12.5/esbuild.wasm',
 		});
 	};
 
